@@ -94,9 +94,9 @@ action:
                   transition: 1
       # Light off
       - conditions:
-          - "{{ command == 'off_with_effect' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
+          - "{{ command == 'off' }}"
+          - "{{ cluster_id == 6 }}"
+          - "{{ endpoint_id == 1 }}"
         sequence:
           - service: light.turn_off
             target: !input light
