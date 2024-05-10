@@ -94,8 +94,8 @@ action:
                   transition: 1
       # Light off
       - conditions:
-          - "{{ command == 'off' }}"
-          - "{{ cluster_id == 6 }}"
+          - "{{ command == 'off_press' }}"
+          - "{{ cluster_id == 64512 }}"
           - "{{ endpoint_id == 1 }}"
         sequence:
           - service: light.turn_off
