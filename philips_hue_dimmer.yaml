@@ -94,7 +94,7 @@ action:
                   transition: 1
       # Light off
       - conditions:
-          - "{{ command == 'off' }}"
+          - "{{ command == 'off_with_effect' }}"
           - "{{ cluster_id == 64512 }}"
           - "{{ endpoint_id == 2 }}"
         sequence:
