@@ -153,16 +153,9 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
-          - choose:
-              - sequence:
-                  - service: light.turn_on
-                    target: all_lights
-                    data:
-                      brightness_step_pct: "{{ step_size * dim_scale }}"
-                      transition: 1
-            default:
+          - default:
               - service: light.turn_on
-                target: !input "first_light"
+                target: all_lights
                 data:
                   brightness_step_pct: "{{ step_size * dim_scale }}"
                   transition: 1
@@ -170,16 +163,9 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
-          - choose:
-              - sequence:
-                  - service: light.turn_on
-                    target: all_lights
-                    data:
-                      brightness_step_pct: "{{ -step_size * dim_scale }}"
-                      transition: 1
-            default:
+          - default:
               - service: light.turn_on
-                target: !input "first_light"
+                target: all_lights
                 data:
                   brightness_step_pct: "{{ -step_size * dim_scale }}"
                   transition: 1
