@@ -154,7 +154,7 @@ action:
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
           - service: light.turn_on
-            target: all_lights
+            target: "{{ all_lights | join(',') }}"
             data:
               brightness_step_pct: "{{ step_size * dim_scale }}"
               transition: 1
@@ -163,7 +163,7 @@ action:
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
           - service: light.turn_on
-            target: all_lights
+            target: "{{ all_lights | join(',') }}"
             data:
               brightness_step_pct: "{{ -step_size * dim_scale }}"
               transition: 1
