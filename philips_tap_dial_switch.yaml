@@ -26,15 +26,15 @@ blueprint:
         target:
           entity: {}
     third_light:
-      name: (OPTIONAL) Third Light
+      name: (OPTIONAL) Turn off lights
       description: The light(s) to control with third button
       default: {}
       selector:
         target:
           entity: {}
     forth_light:
-      name: (OPTIONAL) Forth Light
-      description: The light(s) to control with forth button
+      name: (OPTIONAL) Turn off lights
+      description: The light(s) to turn off with fourth button
       default: {}
       selector:
         target:
@@ -66,6 +66,11 @@ variables:
   forth_light: !input "forth_light"
   current_light: !input "current_light"
   dim_scale: !input "dim_scale"
+  all_lights:
+    - !input "first_light"
+    - !input "second_light"
+    - !input "third_light"
+    - !input "forth_light"
   lights:
     first_light: !input "first_light"
     second_light: !input "second_light"
@@ -119,7 +124,7 @@ action:
           - "{{ third_light != none }}"
           - "{{ scene == 5 }}"
         sequence:
-          - service: homeassistant.toggle
+          - service: homeassistant.turn_off
             target: !input "third_light"
           - choose:
               - conditions: "{{ current_light != none }}"
@@ -134,7 +139,7 @@ action:
           - "{{ forth_light != none }}"
           - "{{ scene == 4 }}"
         sequence:
-          - service: homeassistant.toggle
+          - service: homeassistant.turn_off
             target: !input "forth_light"
           - choose:
               - conditions: "{{ current_light != none }}"
@@ -149,10 +154,9 @@ action:
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
           - choose:
-              - conditions: "{{ current_light != none }}"
-                sequence:
+              - sequence:
                   - service: light.turn_on
-                    target: "{{ lights[states(current_light)] }}"
+                    target: "{{ lights[states(all_lights)] }}"
                     data:
                       brightness_step_pct: "{{ step_size * dim_scale }}"
                       transition: 1
@@ -167,10 +171,9 @@ action:
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
           - choose:
-              - conditions: "{{ current_light != none }}"
-                sequence:
+              - sequence:
                   - service: light.turn_on
-                    target: "{{ lights[states(current_light)] }}"
+                    target: "{{ lights[states(all_lights)] }}"
                     data:
                       brightness_step_pct: "{{ -step_size * dim_scale }}"
                       transition: 1
