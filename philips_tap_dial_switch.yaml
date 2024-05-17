@@ -153,19 +153,17 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
-          - default:
-              - service: light.turn_on
-                target: all_lights
-                data:
-                  brightness_step_pct: "{{ step_size * dim_scale }}"
-                  transition: 1
+          - service: light.turn_on
+            target: all_lights
+            data:
+              brightness_step_pct: "{{ step_size * dim_scale }}"
+              transition: 1
       - conditions:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
-          - default:
-              - service: light.turn_on
-                target: all_lights
-                data:
-                  brightness_step_pct: "{{ -step_size * dim_scale }}"
-                  transition: 1
+          - service: light.turn_on
+            target: all_lights
+            data:
+              brightness_step_pct: "{{ -step_size * dim_scale }}"
+              transition: 1
