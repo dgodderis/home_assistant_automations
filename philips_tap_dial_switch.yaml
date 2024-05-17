@@ -156,7 +156,7 @@ action:
           - choose:
               - sequence:
                   - service: light.turn_on
-                    target: "{{ lights[states(all_lights)] }}"
+                    target: all_lights
                     data:
                       brightness_step_pct: "{{ step_size * dim_scale }}"
                       transition: 1
@@ -173,7 +173,7 @@ action:
           - choose:
               - sequence:
                   - service: light.turn_on
-                    target: "{{ lights[states(all_lights)] }}"
+                    target: all_lights
                     data:
                       brightness_step_pct: "{{ -step_size * dim_scale }}"
                       transition: 1
