@@ -66,11 +66,6 @@ variables:
   forth_light: !input "forth_light"
   current_light: !input "current_light"
   dim_scale: !input "dim_scale"
-  all_lights:
-    - !input "first_light"
-    - !input "second_light"
-    - !input "third_light"
-    - !input "forth_light"
   lights:
     first_light: !input "first_light"
     second_light: !input "second_light"
@@ -153,35 +148,17 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
-          - choose:
-              - conditions: "{{ current_light != none }}"
-                sequence:
-                  - service: light.turn_on
-                    target: "{{ lights[states(current_light)] }}"
-                    data:
-                      brightness_step_pct: "{{ step_size * dim_scale }}"
-                      transition: 1
-            default:
-              - service: light.turn_on
-                target: !input "first_light"
-                data:
-                  brightness_step_pct: "{{ step_size * dim_scale }}"
-                  transition: 1
+          - service: light.turn_on
+            target: "{{ lights[states(current_light)] }}"
+            data:
+              brightness_step_pct: "{{ step_size * dim_scale }}"
+              transition: 1
       - conditions:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
-          - choose:
-              - conditions: "{{ current_light != none }}"
-                sequence:
-                  - service: light.turn_on
-                    target: "{{ lights[states(current_light)] }}"
-                    data:
-                      brightness_step_pct: "{{ -step_size * dim_scale }}"
-                      transition: 1
-            default:
-              - service: light.turn_on
-                target: !input "first_light"
-                data:
-                  brightness_step_pct: "{{ -step_size * dim_scale }}"
-                  transition: 1
+          - service: light.turn_on
+            target: "{{ lights[states(current_light)] }}"
+            data:
+              brightness_step_pct: "{{ -step_size * dim_scale }}"
+              transition: 1
