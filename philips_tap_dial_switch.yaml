@@ -153,30 +153,23 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
-          - repeat:
-            for_each:
-              - !input "first_light"
-              - !input "second_light"
-            sequence:
-              - service: light.turn_on
-                target:
-                  entity_id: {{ repeat.item }}
-                data:
-                  brightness_step_pct: "{{ step_size * dim_scale }}"
-                  transition: 1
+          - service: light.turn_on
+            target:
+              entity_id:
+                - !input "first_light"
+                - !input "second_light"
+            data:
+              brightness_step_pct: "{{ step_size * dim_scale }}"
+              transition: 1
       - conditions:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
-          - repeat:
-            for_each:
-              - !input "first_light"
-              - !input "second_light"
-            sequence:
-              - service: light.turn_on
-                target:
-                  entity_id: {{ repeat.item }}
-                data:
-                  brightness_step_pct: "{{ -step_size * dim_scale }}"
-                  transition: 1
-
+          - service: light.turn_on
+            target:
+              entity_id:
+                - !input "first_light"
+                - !input "second_light"
+            data:
+              brightness_step_pct: "{{ -step_size * dim_scale }}"
+              transition: 1
