@@ -155,7 +155,7 @@ action:
         sequence:
           - service: light.turn_on
             target:
-              entity_id: !input "current_light"
+              entity_id: "{{ lights[states(current_light)] }}"
             data:
               brightness_step_pct: "{{ step_size * dim_scale }}"
               transition: 1
@@ -165,7 +165,7 @@ action:
         sequence:
           - service: light.turn_on
             target:
-              entity_id: !input "current_light"
+              entity_id: "{{ lights[states(current_light)] }}"
             data:
               brightness_step_pct: "{{ -step_size * dim_scale }}"
               transition: 1
