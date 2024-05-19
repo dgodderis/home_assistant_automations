@@ -155,8 +155,8 @@ action:
         sequence:
           - repeat:
             for_each:
-              - !input "first_light"
-              - !input "second_light"
+              - item: !input "first_light"
+              - item: !input "second_light"
             sequence:
               - service: light.turn_on
                 target:
@@ -170,8 +170,8 @@ action:
         sequence:
           - repeat:
             for_each:
-              - !input "first_light"
-              - !input "second_light"
+              - item: !input "first_light"
+              - item: !input "second_light"
             sequence:
               - service: light.turn_on
                 target:
