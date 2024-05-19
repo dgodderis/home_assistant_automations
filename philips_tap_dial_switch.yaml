@@ -154,9 +154,7 @@ action:
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
           - service: light.turn_on
-            target: 
-              - !input "first_light"
-              - !input "second_light"
+            target: "{{ [first_light, second_light] }}"
             data:
               brightness_step_pct: "{{ step_size * dim_scale }}"
               transition: 1
@@ -165,9 +163,7 @@ action:
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
           - service: light.turn_on
-            target:
-              - !input "first_light"
-              - !input "second_light"
+            target: "{{ [first_light, second_light] }}"
             data:
               brightness_step_pct: "{{ -step_size * dim_scale }}"
               transition: 1
