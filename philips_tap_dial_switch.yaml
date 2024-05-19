@@ -153,19 +153,35 @@ action:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Up' }}"
         sequence:
-          - service: light.turn_on
-            target:
-              entity_id: "{{ lights[states(current_light)] }}"
-            data:
-              brightness_step_pct: "{{ step_size * dim_scale }}"
-              transition: 1
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: "{{ step_size * dim_scale }}"
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "first_light"
+                data:
+                  brightness_step_pct: "{{ step_size * dim_scale }}"
+                  transition: 1
       - conditions:
           - "{{ command == 'step_with_on_off' }}"
           - "{{ step_mode == 'StepMode.Down' }}"
         sequence:
-          - service: light.turn_on
-            target:
-              entity_id: "{{ lights[states(current_light)] }}"
-            data:
-              brightness_step_pct: "{{ -step_size * dim_scale }}"
-              transition: 1
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: "{{ -step_size * dim_scale }}"
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "first_light"
+                data:
+                  brightness_step_pct: "{{ -step_size * dim_scale }}"
+                  transition: 1
