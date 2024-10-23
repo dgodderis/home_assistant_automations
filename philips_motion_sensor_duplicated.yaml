@@ -140,8 +140,7 @@ action:
       - condition: template
         value_template: >
           {{
-            trigger.platform == 'state'
-            and trigger.to_state.state == 'on'
+            trigger.to_state.state == 'on'
           }}
       - condition: numeric_state
         entity_id: !input illuminance_entity
@@ -155,8 +154,7 @@ action:
       - condition: template
         value_template: >
           {{
-            trigger.platform == 'state'
-            and trigger.to_state.state == 'off'
+            trigger.to_state.state == 'off'
           }}
       sequence:
         - service: light.turn_off
