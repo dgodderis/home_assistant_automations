@@ -1,0 +1,166 @@
+blueprint:
+  name: Simple Hue Motion Sensor
+  description: |
+    A simple Hue Motion Sensor (SML001) automation.
+    
+    Recommendations:
+      1. Use Adaptive Lighting (available in HACS). This will set the brightness and colour temperature.
+      2. Configure an input_boolean helper to track whether the automation turned your light on or off. This is useful for dashboards and other automations.
+  domain: automation
+  input:
+    occupancy_entity:
+      name: Occupancy Sensor
+      description: "Select your Hue Motion Sensor."
+      selector:
+        entity:
+          filter:
+            - device_class: occupancy
+              integration: zha
+              domain: binary_sensor
+    o_to_u_delay:
+      name: Occupied duration
+      description: "How many seconds the lights will remain on. Restart Home Assistant to apply."
+      default: 180
+      selector:
+        number:
+          min: 0
+          max: 1800
+          mode: box
+          unit_of_measurement: "seconds"
+    sensitivity:
+      name: Sensitivity of sensor
+      description: "How sensitive to motion the sensor should be. 0 is less sensitive and 2 is the most sensitive. Restart Home Assistant to apply."
+      default: 2
+      selector:
+        number:
+          min: 0
+          max: 2
+    illuminance_entity:
+      name: Illuminance
+      description: "The luminance sensor to use. You can use the one built into your motion sensor."
+      selector:
+        entity:
+          domain: sensor
+          device_class: illuminance
+    luminance_value:
+      name: Light trigger level
+      description: "Anything darker than this will turn on the light. Start with 30 and adjust from there."
+      default: 6
+      selector:
+        number:
+          min: 2
+          max: 3000
+          mode: box
+          unit_of_measurement: "lx"
+    light_entity:
+      name: Lights
+      description: The light(s) to control.
+      selector:
+        entity:
+          domain: light
+    trigger_entity:
+      name: Input boolean helper
+      description: This input boolean will be turned on / off with the light, but only when toggled by this automation. Useful for dashboards and other automatons.
+      default: {}
+      selector:
+        entity:
+          domain: input_boolean
+    on_state_blocker:
+      name: Block automation if device is on
+      description: Optional. If this device is 'on' then the occupancy sensor is disabled (e.g. exhaust fan in bathroom). Leave default value to ignore this.
+      default: {}
+      selector:
+        entity:
+    off_state_blocker:
+      name: Block automation if device is off
+      description: Optional. If this device is 'off' then the occupancy sensor is disabled (e.g. a manually controlled lamp). Leave default value to ignore this.
+      default: {}
+      selector:
+        entity:
+
+#
+# The automation
+#
+variables:
+  occupancy_entity: !input occupancy_entity
+  on_state_blocker: !input on_state_blocker
+  off_state_blocker: !input off_state_blocker
+
+# Trigger mode
+mode: single
+
+# Trigger
+trigger:
+  # When HA starts
+  - platform: homeassistant
+    event: start
+  # Occupancy sensor. Any state change
+  - platform: state
+    entity_id: !input occupancy_entity
+
+# Conditions
+condition:
+  # Using a template allows us to cater for either of these entities being "None"
+  - alias: "Exit if chosen device is on"
+    condition: template
+    value_template: "{{ True if not on_state_blocker else is_state(on_state_blocker, 'off') }}"
+  - alias: "Exit if chosen device is off"
+    condition: template
+    value_template: "{{ True if not off_state_blocker else is_state(off_state_blocker, 'on') }}"
+
+action:
+  - alias: "Update what caused the trigger?"
+    condition: template
+    value_template: "{{ trigger.platform == 'homeassistant' }}"
+    sequence:
+    # Set device occupancy off delay
+    - service: zha.set_zigbee_cluster_attribute
+      data:
+        ieee: "{{ device_attr(occupancy_entity, 'identifiers') | selectattr(0,'eq','zha') | map(attribute=1) | first }}"
+        endpoint_id: 2
+        cluster_id: 0x0406
+        cluster_type: in
+        attribute: 0x0010
+        value: !input o_to_u_delay
+    # Set device sensitivity
+    - service: zha.set_zigbee_cluster_attribute
+      data:
+        ieee: "{{ device_attr(occupancy_entity, 'identifiers') | selectattr(0,'eq','zha') | map(attribute=1) | first }}"
+        endpoint_id: 2
+        cluster_id: 0x0406
+        cluster_type: in
+        attribute: 0x0030
+        value: !input sensitivity
+
+# Actions
+action:
+  - alias: "Update trigger"
+    choose:
+    - conditions:
+      - condition: template
+        value_template: >
+          {{
+            trigger.platform == 'state'
+            and trigger.to_state.state == 'on'
+          }}
+      - condition: numeric_state
+        entity_id: !input illuminance_entity
+        below: !input luminance_value
+      sequence:
+        - service: light.turn_on
+          entity_id: !input light_entity
+        - service: input_boolean.turn_on
+          entity_id: !input trigger_entity
+    - conditions:
+      - condition: template
+        value_template: >
+          {{
+            trigger.platform == 'state'
+            and trigger.to_state.state == 'off'
+          }}
+      sequence:
+        - service: light.turn_off
+          entity_id: !input light_entity
+        - service: input_boolean.turn_off
+          entity_id: !input trigger_entity
+    default: []
